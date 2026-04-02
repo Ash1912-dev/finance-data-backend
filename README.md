@@ -463,9 +463,7 @@ At runtime it checks whether the authenticated user's role includes that permiss
 
 ---
 
-## Standout Engineering Features
-
-These go beyond the core assignment requirements and reflect deliberate engineering thinking.
+## Standout Features
 
 ### 1. Financial Health Score Algorithm
 
@@ -585,15 +583,10 @@ A shared `paginate(query, model, page, limit)` utility is used by every list end
 
 ## Assumptions
 
-1. **Single-tenant system**: All users share the same financial record pool. Multi-tenancy would require organization-scoped records and a tenant identifier on every document.
-2. **Currency**: All amounts are in INR (Indian Rupees). No multi-currency conversion is implemented.
-3. **New users get Viewer role by default**: Registration intentionally assigns the least-privileged role. An Admin must manually upgrade a user.
-4. **MongoDB available locally**: The default `.env` points to `mongodb://localhost:27017/finance_db`. A MongoDB Atlas URI works as a drop-in replacement.
-5. **Budget periods are monthly or weekly only**: These cover the two most common budgeting intervals. Daily and yearly periods are not supported.
-6. **Insights run on-demand**: Computed live on each request. At scale, pre-computation on a cron schedule with Redis caching would be the production approach.
+- We're building this as a single-tenant app. Adding multi-tenancy later would just require adding an `orgId` or `tenantId` to the Mongoose schemas.
+- All financial amounts are handled as INR. Setting up live currency conversion APIs felt out of scope for the core backend requirements.
+- When someone new registers, they are automatically dropped into the `Viewer` role for safety. An Admin has to manually promote them to handle any write operations.
+- For budget tracking, I restricted the periods to just `weekly` and `monthly` strings to keep the Joi validation clean and cover the vast majority of use cases.
+- The analytics API endpoints execute aggregation pipelines live on the database. This is totally fine for this scale, but if this were serving millions of users, we'd definitely need to cache these summary results in Redis or compute them nightly via cron jobs.
 
 ---
-
-## License
-
-ISC
