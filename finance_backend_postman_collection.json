@@ -1,0 +1,378 @@
+{
+  "info": {
+    "name": "Finance Backend API - Complete",
+    "description": "Complete collection for the Finance Data Processing and Access Control Backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health"
+      }
+    },
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"test@finance.app\",\n    \"password\": \"User@1234\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/register"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if(jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set(\"token\", jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"admin@finance.app\",\n    \"password\": \"Admin@1234\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Get Profile (Me)",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Roles (Admin Only)",
+      "item": [
+        {
+          "name": "Get All Roles",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "GET",
+            "url": "{{baseUrl}}/roles"
+          }
+        },
+        {
+          "name": "Create Role",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Manager\",\n    \"description\": \"Can manage budgets and records\",\n    \"permissions\": [\"read:record\", \"create:record\", \"update:record\", \"read:analytics\", \"manage:budgets\"]\n}"
+            },
+            "url": "{{baseUrl}}/roles"
+          }
+        },
+        {
+          "name": "Update Role",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"description\": \"Updated description\"\n}"
+            },
+            "url": "{{baseUrl}}/roles/:id"
+          }
+        },
+        {
+          "name": "Delete Role",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "DELETE",
+            "url": "{{baseUrl}}/roles/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Users (Admin Only)",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "GET",
+            "url": "{{baseUrl}}/users?status=active"
+          }
+        },
+        {
+          "name": "Get User By ID",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "GET",
+            "url": "{{baseUrl}}/users/:id"
+          }
+        },
+        {
+          "name": "Update User Name",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Name\"\n}"
+            },
+            "url": "{{baseUrl}}/users/:id"
+          }
+        },
+        {
+          "name": "Update User Status",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"inactive\"\n}"
+            },
+            "url": "{{baseUrl}}/users/:id/status"
+          }
+        },
+        {
+          "name": "Update User Role",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"roleId\": \"REPLACE_WITH_ROLE_ID\"\n}"
+            },
+            "url": "{{baseUrl}}/users/:id/role"
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "DELETE",
+            "url": "{{baseUrl}}/users/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Financial Records",
+      "item": [
+        {
+          "name": "Get All Records",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "GET",
+            "url": "{{baseUrl}}/records?page=1&limit=10&type=expense"
+          }
+        },
+        {
+          "name": "Export CSV",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "GET",
+            "url": "{{baseUrl}}/records/export/csv"
+          }
+        },
+        {
+          "name": "Get Record By ID",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "GET",
+            "url": "{{baseUrl}}/records/:id"
+          }
+        },
+        {
+          "name": "Create Record",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"amount\": 5000,\n    \"type\": \"expense\",\n    \"category\": \"rent\",\n    \"notes\": \"Monthly rent payment\",\n    \"isRecurring\": true,\n    \"recurrenceInterval\": \"monthly\"\n}"
+            },
+            "url": "{{baseUrl}}/records"
+          }
+        },
+        {
+          "name": "Update Record",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"amount\": 5500\n}"
+            },
+            "url": "{{baseUrl}}/records/:id"
+          }
+        },
+        {
+          "name": "Delete Record",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "DELETE",
+            "url": "{{baseUrl}}/records/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Analytics",
+      "item": [
+        {
+          "name": "Get Health Score",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/health"
+          }
+        },
+        {
+          "name": "Get Summary",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/summary"
+          }
+        },
+        {
+          "name": "Get By Category",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/by-category?type=expense"
+          }
+        },
+        {
+          "name": "Get Monthly Trends",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/monthly-trends"
+          }
+        },
+        {
+          "name": "Get Budget Status",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/budget-status"
+          }
+        },
+        {
+          "name": "Get Insights",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "GET",
+            "url": "{{baseUrl}}/analytics/insights"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Budgets (Admin Only)",
+      "item": [
+        {
+          "name": "Get All Budgets",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "GET",
+            "url": "{{baseUrl}}/budgets"
+          }
+        },
+        {
+          "name": "Create Budget",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"category\": \"food\",\n    \"limitAmount\": 15000,\n    \"period\": \"monthly\",\n    \"alertThreshold\": 80\n}"
+            },
+            "url": "{{baseUrl}}/budgets"
+          }
+        },
+        {
+          "name": "Update Budget",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"limitAmount\": 20000\n}"
+            },
+            "url": "{{baseUrl}}/budgets/:id"
+          }
+        },
+        {
+          "name": "Delete Budget",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "DELETE",
+            "url": "{{baseUrl}}/budgets/:id"
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Audit Logs (Admin & Analyst)",
+      "item": [
+        {
+          "name": "Get All Audit Logs",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "GET",
+            "url": "{{baseUrl}}/audit"
+          }
+        },
+        {
+          "name": "Get User Audit Trail",
+          "request": {
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]},
+            "method": "GET",
+            "url": "{{baseUrl}}/audit/user/:userId"
+          }
+        }
+      ]
+    }
+  ]
+}
